@@ -34,7 +34,7 @@
   },
   "platform": {
     "eyebrow": "The platform",
-    "heading": "Nine things I want to do",
+    "heading": "Ten things I want to do",
     "intro": "These are my starting points. The door‑to‑door conversations happening now will sharpen them, and I'll post what changes and why.",
     "items": [
       {
@@ -92,6 +92,13 @@
         "green": false,
         "linkLabel": "",
         "linkTo": ""
+      },
+      {
+        "title": "Bring in a right to cool",
+        "text": "Table a bylaw, as New Westminster has done, so that every rental home has at least one room that stays at 26°C or lower during heatwaves. Tenants should not have to endure dangerous indoor heat.",
+        "green": false,
+        "linkLabel": "Where this came from: day one at the door →",
+        "linkTo": "#dispatch-1"
       },
       {
         "title": "Leave it better than we found it",
