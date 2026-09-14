@@ -336,11 +336,18 @@ footer .auth { font-family: var(--display); font-size: .85rem; }
 
 /* ---------------- editor styles (only injected while editing) ---------------- */
 const EDITOR_CSS = `
-#editor { position: fixed; top: 0; right: 0; bottom: 0; width: min(440px, 100vw); z-index: 50;
+#editor { position: fixed; top: 0; right: 0; bottom: 0; width: min(var(--editor-w, 600px), 100vw); z-index: 50;
   background: var(--surface); color: var(--ink); border-left: 1px solid var(--line);
   box-shadow: -20px 0 50px -30px rgba(0,0,0,.4); display: grid; grid-template-rows: auto 1fr auto;
   font-family: var(--display); font-size: .92rem; }
-html.editing body { margin-right: min(440px, 100vw); }
+html.editing body { margin-right: min(var(--editor-w, 600px), 100vw); }
+#editor .grip { position: absolute; left: -4px; top: 0; bottom: 0; width: 10px; cursor: col-resize; z-index: 2; }
+#editor .grip::after { content: ""; position: absolute; left: 4px; top: 0; bottom: 0; width: 2px; background: transparent; transition: background .15s; }
+#editor .grip:hover::after, #editor.resizing .grip::after { background: var(--arbutus); }
+#editor.resizing { user-select: none; }
+#editor header .tools { display: flex; gap: .4rem; }
+#editor header .x { white-space: nowrap; }
+@media (max-width: 900px) { #editor .grip, #editor [data-action="width"] { display: none; } }
 @media (max-width: 900px) { html.editing body { margin-right: 0; } }
 #editor header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .9rem 1rem; border-bottom: 1px solid var(--line); }
 #editor header h2 { font-size: 1.05rem; font-weight: 800; margin: 0; }
@@ -907,7 +914,8 @@ const Editor = {
     if (this.el) return;
     const style = document.createElement("style"); style.id = "editor-css"; style.textContent = EDITOR_CSS; document.head.appendChild(style);
     const el = document.createElement("aside"); el.id = "editor"; el.setAttribute("aria-label", "Content editor");
-    el.innerHTML = `<header><h2>Edit the site</h2><button type="button" class="x" data-action="close">Close</button></header>
+    el.innerHTML = `<div class="grip" title="Drag to resize"></div>
+      <header><h2>Edit the site</h2><span class="tools"><button type="button" class="x" data-action="width" title="Cycle panel width">Width</button><button type="button" class="x" data-action="close">Close</button></span></header>
       <div class="body"></div>
       <footer>
         <div class="row"><button type="button" class="btn btn-primary" data-action="publish">Publish changes</button>
@@ -921,10 +929,27 @@ const Editor = {
     el.addEventListener("input", (e) => this.onInput(e));
     el.addEventListener("change", (e) => this.onChange(e));
     el.addEventListener("click", (e) => this.onClick(e));
+    this.setWidth(this.loadWidth(), false);
+    const grip = el.querySelector(".grip");
+    grip.addEventListener("pointerdown", (e) => {
+      e.preventDefault(); grip.setPointerCapture(e.pointerId); el.classList.add("resizing");
+      const move = (ev) => this.setWidth(root.innerWidth - ev.clientX, false);
+      const up = () => { grip.removeEventListener("pointermove", move); grip.removeEventListener("pointerup", up); el.classList.remove("resizing"); this.setWidth(this.width, true); };
+      grip.addEventListener("pointermove", move); grip.addEventListener("pointerup", up);
+    });
     el.addEventListener("toggle", (e) => { const d = e.target; if (d.dataset.key) { d.open ? this.openKeys.add(d.dataset.key) : this.openKeys.delete(d.dataset.key); } }, true);
     root.addEventListener("beforeunload", (e) => { if (this.dirty) { e.preventDefault(); e.returnValue = ""; } });
     this.renderFields();
   },
+  width: 600,
+  loadWidth() { try { const w = parseInt(localStorage.getItem("t4e-editor-w"), 10); if (w) return w; } catch (e) {} return 600; },
+  setWidth(w, save) {
+    const max = Math.max(360, Math.min(root.innerWidth * 0.9, 1200));
+    this.width = Math.round(Math.min(max, Math.max(360, w)));
+    document.documentElement.style.setProperty("--editor-w", this.width + "px");
+    if (save) { try { localStorage.setItem("t4e-editor-w", String(this.width)); } catch (e) {} }
+  },
+  cycleWidth() { const steps = [440, 600, 800, 1000]; const next = steps.find(x => x > this.width + 20) || steps[0]; this.setWidth(next, true); },
   renderFields() {
     const body = this.el.querySelector(".body");
     body.innerHTML = SCHEMA.map(s => `<details data-key="${s.key}"${this.openKeys.has(s.key) ? " open" : ""}><summary>${esc(s.title)}</summary>
@@ -966,6 +991,7 @@ const Editor = {
     const b = e.target.closest("[data-action]"); if (!b) return;
     const a = b.dataset.action, path = b.dataset.path;
     if (a === "close") return this.hide();
+    if (a === "width") return this.cycleWidth();
     if (a === "publish") return this.publish();
     if (a === "download") return this.download();
     if (a === "report") return this.report();
