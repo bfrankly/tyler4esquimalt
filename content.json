@@ -16,7 +16,8 @@
     "landAck": "Esquimalt is on the traditional territory of the Esquimalt and Songhees Nations, Lekwungen‑speaking peoples who have cared for this land and water since time immemorial. We live, work and play here as their guests.",
     "agentName": "Tyler Russell",
     "agentContact": "tyler@tyler4esquimalt.ca",
-    "copyright": "© 2026 Tyler Russell"
+    "copyright": "© 2026 Tyler Russell",
+    "formKey": ""
   },
   "hero": {
     "thesis": "Toward a *low‑cortisol* Esquimalt.",
@@ -124,8 +125,9 @@
     ],
     "concernPlaceholder": "The thing that stresses you out about living here right now.",
     "visionPlaceholder": "Esquimalt in ten years, if it went the way you hoped.",
-    "formNote": "This opens your email app with your answers filled in. Nothing is stored on this site.",
-    "formButton": "Send to Tyler"
+    "formNote": "Goes straight to Tyler's inbox. Nothing is published from this form; themes may appear on this page, never names.",
+    "formButton": "Send to Tyler",
+    "formNoteMailto": "This opens your email app with your answers filled in. Nothing is stored on this site."
   },
   "hearing": {
     "eyebrow": "What I'm hearing",

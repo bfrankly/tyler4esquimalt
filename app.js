@@ -248,6 +248,10 @@ section + section { border-top: 1px solid var(--line); }
 }
 .field textarea { min-height: 6.5rem; resize: vertical; }
 .form .note { font-size: .92rem; color: var(--muted); }
+.form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form { position: relative; }
+.form .thanks { padding: 1.25rem; border-radius: 8px; background: var(--tint); font-family: var(--display); font-weight: 700; }
+.form .thanks small { display: block; font-weight: 500; color: var(--muted); margin-top: .35rem; }
 
 /* hearing board */
 .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
@@ -527,8 +531,9 @@ function renderBody(c) {
         <label for="vision">Your long‑term vision</label>
         <textarea id="vision" name="vision" placeholder="${esc(c.voice.visionPlaceholder)}"></textarea>
       </div>
+      <div class="field hp" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
       <button class="btn btn-primary" type="submit">${esc(c.voice.formButton)}</button>
-      <p class="note">${inl(c.voice.formNote)}</p>
+      <p class="note" id="form-note">${inl(c.site.formKey ? c.voice.formNote : c.voice.formNoteMailto)}</p>
     </form>
   </div>
 </section>
@@ -761,7 +766,8 @@ const SCHEMA = [
     T("site.signName", "Name on the sign", "textarea", { hint: "Press Enter to break the name across lines." }),
     T("site.signOffice", "Running for"),
     T("site.stickerTop", "Sticker, top line"), T("site.stickerBig", "Sticker, big line"), T("site.stickerBottom", "Sticker, bottom line"),
-    T("site.email", "Campaign email address", "text", { hint: "Every email link and the concern form use this." }),
+    T("site.email", "Campaign email address", "text", { hint: "Every email link uses this, and the concern form falls back to it." }),
+    T("site.formKey", "Form delivery key (Web3Forms access key)", "text", { hint: "With a key, the concern form sends straight from the page and emails you each submission. Leave blank to fall back to the visitor's email app." }),
     T("site.votingHeading", "Election strip heading", "textarea"),
     T("site.votingText", "Election strip text", "textarea"),
     T("site.votingButton", "Election strip button"),
@@ -794,7 +800,8 @@ const SCHEMA = [
     T("voice.formHeading", "Form heading"),
     T("voice.neighbourhoods", "Neighbourhood choices, one per line", "lines"),
     T("voice.concernPlaceholder", "Concern box hint"), T("voice.visionPlaceholder", "Vision box hint"),
-    T("voice.formButton", "Form button"), T("voice.formNote", "Note under the button", "textarea"),
+    T("voice.formButton", "Form button"), T("voice.formNote", "Note under the button (when form delivery is set up)", "textarea"),
+    T("voice.formNoteMailto", "Note under the button (email-app fallback)", "textarea"),
   ]},
   { key: "hearing", title: "What I'm hearing", fields: [
     T("hearing.eyebrow", "Small heading"), T("hearing.heading", "Heading"), T("hearing.intro", "Intro", "textarea"),
@@ -1077,13 +1084,25 @@ function renderSite() {
 }
 function wireSite() {
   const form = document.getElementById("concern-form");
-  if (form) form.addEventListener("submit", (e) => {
+  if (form) form.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
-    const body = "Name: " + (f.name.value || "(not given)") + "\n" +
-      "Part of Esquimalt: " + (f.hood.value || "(not given)") + "\n\n" +
-      "Immediate concern:\n" + (f.concern.value || "(blank)") + "\n\n" +
-      "Long-term vision:\n" + (f.vision.value || "(blank)") + "\n";
-    root.location.href = "mailto:" + state.site.email + "?subject=" + encodeURIComponent("My concern and vision for Esquimalt") + "&body=" + encodeURIComponent(body);
+    if (f.website && f.website.value) return; // honeypot: silently drop bots
+    const fields = { name: f.name.value || "(not given)", neighbourhood: f.hood.value || "(not given)", concern: f.concern.value || "(blank)", vision: f.vision.value || "(blank)" };
+    const body = "Name: " + fields.name + "\nPart of Esquimalt: " + fields.neighbourhood + "\n\nImmediate concern:\n" + fields.concern + "\n\nLong-term vision:\n" + fields.vision + "\n";
+    const mailto = () => { root.location.href = "mailto:" + state.site.email + "?subject=" + encodeURIComponent("My concern and vision for Esquimalt") + "&body=" + encodeURIComponent(body); };
+    if (!state.site.formKey || !root.fetch) return mailto();
+    if (!f.concern.value.trim() && !f.vision.value.trim()) { f.concern.focus(); return; }
+    const btn = f.querySelector("button[type=submit]"); const note = f.querySelector("#form-note");
+    btn.disabled = true; note.textContent = "Sending…";
+    try {
+      const r = await fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ access_key: state.site.formKey, subject: "Concern and vision from " + fields.name + " (" + fields.neighbourhood + ")", from_name: "Tyler4Esquimalt website", name: fields.name, neighbourhood: fields.neighbourhood, concern: fields.concern, vision: fields.vision, botcheck: "" }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.success) throw new Error(j.message || "send failed");
+      f.innerHTML = '<div class="thanks">Thank you. Your concern and vision are on their way to Tyler.<small>Nothing is published from this form. Themes may appear on this page, never names.</small></div>';
+    } catch (err) {
+      btn.disabled = false; note.textContent = "That didn't go through. Opening your email app instead…"; setTimeout(mailto, 800);
+    }
   });
 }
 
