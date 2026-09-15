@@ -407,6 +407,10 @@ html.editing body { margin-right: min(var(--editor-w, 600px), 100vw); }
 #editor .hint { font-size: .8rem; color: var(--muted); line-height: 1.4; }
 #editor .photo-preview { width: 100%; border-radius: 6px; display: block; }
 #editor .nested { display: grid; gap: .6rem; padding-left: .5rem; border-left: 3px solid var(--line); }
+#editor .token { display: grid; gap: .5rem; padding: .9rem 1rem; border: 1px solid var(--arbutus); border-radius: 8px; background: color-mix(in srgb, var(--arbutus) 8%, var(--surface)); }
+#editor .token h3 { font-size: .95rem; font-weight: 800; }
+#editor .token input { font-family: ui-monospace, Menlo, monospace; font-size: .9rem; }
+#editor .token .row { justify-content: space-between; }
 `;
 
 /* ---------------- helpers ---------------- */
@@ -824,6 +828,7 @@ const SCHEMA = [
     T("site.signOffice", "Running for"),
     T("site.stickerTop", "Sticker, top line"), T("site.stickerBig", "Sticker, big line"), T("site.stickerBottom", "Sticker, bottom line"),
     T("site.email", "Campaign email address", "text", { hint: "Every email link uses this, and the concern form falls back to it." }),
+    T("site.repo", "GitHub repository that hosts the live site (owner/name)", "text", { hint: "Lets the editor at tyler4esquimalt.ca/#editor publish, using a GitHub token you keep in your browser." }),
     T("site.formKey", "Form delivery key (Web3Forms access key)", "text", { hint: "With a key, the concern form sends straight from the page and emails you each submission. Leave blank to fall back to the visitor's email app." }),
     T("site.votingHeading", "Election strip heading", "textarea"),
     T("site.votingText", "Election strip text", "textarea"),
@@ -985,6 +990,20 @@ function listSpec(path) {
 
 const Editor = {
   el: null, open: false, dirty: false, artifact: null, downloads: null, readOnly: false, openKeys: new Set(["hearing"]),
+  github: null, TOKEN: "t4e-publish-token",
+  token() { try { return localStorage.getItem(this.TOKEN) || ""; } catch (e) { return ""; } },
+  refreshTokenBox() {
+    if (!this.el) return;
+    const box = this.el.querySelector("#token-box");
+    box.hidden = !this.github;
+    if (this.github) {
+      const has = !!this.token();
+      box.querySelector("h3").textContent = has ? "Publishing token saved on this browser" : "Publishing token needed";
+      box.querySelector("input").hidden = has; box.querySelector('[data-action="token-save"]').hidden = has; box.querySelector('[data-action="token-forget"]').hidden = !has;
+      this.diag = "Publishing to " + this.github.owner + "/" + this.github.repo + (has ? " · token saved" : " · no token yet");
+      const d = this.el.querySelector("#editor-diag"); if (d) d.textContent = this.diag;
+    }
+  },
   DRAFT: "t4e-draft",
 
   mount() {
@@ -1000,6 +1019,12 @@ const Editor = {
         <button type="button" class="btn btn-ghost" data-action="report">Compile council report</button></div>
         <div class="status" id="editor-status"></div>
         <div class="hint" id="editor-diag"></div>
+        <div class="token" id="token-box" hidden>
+          <h3>Publishing token</h3>
+          <span class="hint">Paste the GitHub token that allows publishing to this site. It stays in this browser only. Anyone without a token can look at this panel but cannot publish.</span>
+          <input type="password" id="token-input" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+          <div class="row"><button type="button" class="mini" data-action="token-save">Save token</button><button type="button" class="mini danger" data-action="token-forget">Forget token on this browser</button></div>
+        </div>
         <span class="hint">Publishing replaces the live page for everyone. Changes preview on the left as you type.</span>
       </footer>`;
     document.body.appendChild(el); this.el = el;
@@ -1033,7 +1058,7 @@ const Editor = {
       <div class="fields">${s.fields.map(f => fieldHTML(f, "", getP(state, f.p))).join("")}</div></details>`).join("");
   },
   show() {
-    this.mount(); this.open = true; document.documentElement.classList.add("editing"); this.el.hidden = false;
+    this.mount(); this.open = true; document.documentElement.classList.add("editing"); this.el.hidden = false; this.refreshTokenBox();
     try {
       const raw = sessionStorage.getItem(this.DRAFT);
       if (raw && raw !== JSON.stringify(state) && confirm("You have an unpublished draft from earlier. Restore it?")) {
@@ -1069,6 +1094,8 @@ const Editor = {
     const a = b.dataset.action, path = b.dataset.path;
     if (a === "close") return this.hide();
     if (a === "width") return this.cycleWidth();
+    if (a === "token-save") { const v = this.el.querySelector("#token-input").value.trim(); if (!v) return this.status("Paste a token first.", true); try { localStorage.setItem(this.TOKEN, v); } catch (e) {} this.el.querySelector("#token-input").value = ""; this.refreshTokenBox(); return this.status("Token saved. You can publish now."); }
+    if (a === "token-forget") { try { localStorage.removeItem(this.TOKEN); } catch (e) {} this.refreshTokenBox(); return this.status("Token forgotten on this browser."); }
     if (a === "publish") return this.publish();
     if (a === "download") return this.download();
     if (a === "report") return this.report();
@@ -1080,7 +1107,39 @@ const Editor = {
     this.touched(); this.renderFields();
   },
 
+  async publishToGitHub() {
+    const g = this.github, tok = this.token();
+    if (!tok) return this.status("Add your publishing token below first.", true);
+    const btn = this.el.querySelector('[data-action="publish"]'); btn.disabled = true; this.status("Publishing to the live site…");
+    try { sessionStorage.setItem(this.DRAFT, JSON.stringify(state)); } catch (e) {}
+    const api = "https://api.github.com/repos/" + g.owner + "/" + g.repo + "/contents/";
+    const headers = { "Authorization": "Bearer " + tok, "Accept": "application/vnd.github+json", "Content-Type": "application/json" };
+    const b64 = (str) => { const bytes = new TextEncoder().encode(str); let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); };
+    const put = async (path, content, message) => {
+      const cur = await fetch(api + path + "?ref=" + g.branch, { headers, cache: "no-store" });
+      let sha; if (cur.status === 200) sha = (await cur.json()).sha; else if (cur.status !== 404) throw { status: cur.status };
+      const r = await fetch(api + path, { method: "PUT", headers, body: JSON.stringify({ message, content: b64(content), branch: g.branch, sha }) });
+      if (!r.ok) throw { status: r.status, body: await r.json().catch(() => ({})) };
+    };
+    try {
+      const src = await ownSource(); if (!src) throw { code: "no_source" };
+      const stamp = new Date().toLocaleString("en-CA");
+      await put("index.html", renderDocument(state, src), "Site update from the editor: " + stamp);
+      await put("content.json", JSON.stringify(state, null, 2) + "\n", "Content update from the editor: " + stamp);
+      this.dirty = false; try { sessionStorage.removeItem(this.DRAFT); } catch (e) {}
+      this.status("Published. The live site updates within a minute or two; reload to see it.");
+    } catch (err) {
+      const st = err && err.status;
+      if (st === 401) this.status("GitHub rejected the token. It may have expired; paste a new one below.", true);
+      else if (st === 403 || st === 404) this.status("The token does not have permission to write to this site's repository.", true);
+      else if (st === 409 || st === 422) this.status("Someone else published first. Reload the page, then redo your change.", true);
+      else if (err && err.code === "no_source") this.status("The page could not find its own script, so it cannot republish itself.", true);
+      else this.status("Publishing failed (" + (st || (err && err.message) || "network") + "). Try again in a moment.", true);
+    }
+    btn.disabled = false;
+  },
   async publish() {
+    if (this.github) return this.publishToGitHub();
     if (!this.artifact) return this.status("Publishing is not available in this view.", true);
     const btn = this.el.querySelector('[data-action="publish"]'); btn.disabled = true; this.status("Publishing…");
     try { sessionStorage.setItem(this.DRAFT, JSON.stringify(state)); } catch (e) {}
@@ -1206,6 +1265,13 @@ if (typeof module !== "undefined" && module.exports) {
   root.T4E_EDITOR = Editor; // for local testing: T4E_EDITOR.show() in the console
 
   const claude = root.claude;
+  const repo = (state.site.repo || "").split("/");
+  if (!(claude && typeof claude.use === "function") && repo.length === 2 && location.protocol !== "file:") {
+    // Self-hosted: the editor publishes through GitHub with the owner's token.
+    Editor.github = { owner: repo[0], repo: repo[1], branch: state.site.repoBranch || "main" };
+    const maybeOpen = () => { if (location.hash === "#editor") Editor.show(); };
+    root.addEventListener("hashchange", maybeOpen); maybeOpen();
+  }
   if (claude && typeof claude.use === "function") {
     (async () => {
       const maybeOpen = () => { if (location.hash === "#editor" && Editor.artifact) Editor.show(); };

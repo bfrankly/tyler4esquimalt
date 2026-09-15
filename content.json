@@ -17,7 +17,9 @@
     "agentName": "Tyler Russell",
     "agentContact": "tyler@tyler4esquimalt.ca",
     "copyright": "© 2026 Tyler Russell",
-    "formKey": "ddc8cb70-6237-45ba-bdda-2cbec0e3a82a"
+    "formKey": "ddc8cb70-6237-45ba-bdda-2cbec0e3a82a",
+    "repo": "",
+    "repoBranch": "main"
   },
   "hero": {
     "thesis": "Toward a *low‑cortisol* Esquimalt.",
