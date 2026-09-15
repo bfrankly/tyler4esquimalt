@@ -317,6 +317,24 @@ section + section { border-top: 1px solid var(--line); }
 .involve .card { background: var(--tint); border-color: transparent; }
 .involve .card a { font-family: var(--display); font-weight: 700; }
 
+/* donate */
+.donate { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 2.5rem 4rem; align-items: start; }
+@media (max-width: 800px) { .donate { grid-template-columns: 1fr; } }
+.rules { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; gap: .6rem; }
+.rules li { display: grid; grid-template-columns: 1.5rem 1fr; gap: .6rem; align-items: baseline; }
+.rules li::before { content: "✓"; font-family: var(--display); font-weight: 800; color: var(--kelp); }
+.ways { display: grid; gap: .9rem; margin-top: 1.75rem; }
+.way { border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.2rem; background: var(--surface); }
+.way h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: .3rem; }
+.way p { font-size: 1rem; color: var(--muted); }
+.way code { font-family: var(--display); font-weight: 700; color: var(--ink); font-size: .98rem; }
+.fine { font-size: .92rem; color: var(--muted); margin-top: 1.5rem; max-width: 60ch; }
+.form .attest { display: grid; gap: .55rem; padding: 1rem; border: 1px solid var(--line); border-radius: 8px; background: var(--ground); }
+.form .attest label { display: grid; grid-template-columns: 1.4rem 1fr; gap: .6rem; align-items: start; font-family: var(--body); font-size: .98rem; font-weight: 400; cursor: pointer; }
+.form .attest input { margin-top: .25rem; width: 1.1rem; height: 1.1rem; }
+.form .two { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+@media (max-width: 520px) { .form .two { grid-template-columns: 1fr; } }
+
 /* election strip */
 .strip { background: var(--sea); color: var(--sea-ink); padding: 2.5rem 0; }
 .strip .wrap { display: flex; flex-wrap: wrap; gap: 1rem 3rem; align-items: center; justify-content: space-between; }
@@ -431,6 +449,7 @@ function renderBody(c) {
       ${hasProposals ? `<a href="#proposals">${esc(c.proposals.eyebrow)}</a>` : ""}
       <a href="#about">${esc(c.about.eyebrow)}</a>
       <a href="#involved">${esc(c.involved.eyebrow)}</a>
+      ${c.donate && c.donate.enabled ? `<a href="#donate">${esc(c.donate.eyebrow)}</a>` : ""}
     </div>
   </div>
 </nav>
@@ -626,11 +645,49 @@ ${hasProposals ? `<section id="proposals">
       ${c.involved.cards.map(k => `<div class="card">
         <h3>${inl(k.title)}</h3>
         <p>${inl(k.text)}</p>
-        <a class="js-mail" data-subject="${esc(k.subject)}" href="mailto:${esc(c.site.email)}?subject=${esc(encodeURIComponent(k.subject))}">${esc(k.linkLabel)}</a>
+        ${k.href ? `<a href="${esc(safeHref(k.href))}">${esc(k.linkLabel)}</a>` : `<a class="js-mail" data-subject="${esc(k.subject)}" href="mailto:${esc(c.site.email)}?subject=${esc(encodeURIComponent(k.subject))}">${esc(k.linkLabel)}</a>`}
       </div>`).join("\n      ")}
     </div>
   </div>
 </section>
+
+${c.donate && c.donate.enabled ? `<section id="donate">
+  <div class="wrap donate">
+    <div>
+      <p class="eyebrow">${esc(c.donate.eyebrow)}</p>
+      <h2 class="voice-h">${inl(c.donate.heading)}</h2>
+      <div class="prose voice-intro">${blocks(c.donate.intro)}</div>
+      <ul class="rules">${c.donate.rules.map(r => `<li><span>${inl(r)}</span></li>`).join("")}</ul>
+      <div class="ways">
+        ${c.donate.etransferEmail ? `<div class="way"><h4>Interac e‑Transfer</h4><p>Send to <code>${esc(c.donate.etransferEmail)}</code>${c.donate.etransferNote ? ". " + inl(c.donate.etransferNote) : ""}</p></div>` : ""}
+        ${c.donate.payUrl ? `<div class="way"><h4>${esc(c.donate.payLabel || "Pay online")}</h4><p>${inl(c.donate.payNote || "")}</p><p style="margin-top:.6rem"><a class="btn btn-primary" href="${esc(safeHref(c.donate.payUrl))}" rel="noopener">${esc(c.donate.payButton || "Contribute online")}</a></p></div>` : ""}
+        ${c.donate.chequeTo ? `<div class="way"><h4>Cheque</h4><p>Payable to <code>${esc(c.donate.chequeTo)}</code>${c.donate.chequeAddress ? ", mailed or dropped off at " + inl(c.donate.chequeAddress) : ""}.</p></div>` : ""}
+      </div>
+      <p class="fine">${inl(c.donate.fine)}</p>
+    </div>
+    <form class="form" id="donor-form" novalidate>
+      <h3>${inl(c.donate.formHeading)}</h3>
+      <p class="note">${inl(c.donate.formIntro)}</p>
+      <div class="field"><label for="d-name">Full name</label><input id="d-name" name="name" type="text" autocomplete="name" required></div>
+      <div class="field"><label for="d-address">Residential address <small>(street, city, postal code)</small></label><input id="d-address" name="address" type="text" autocomplete="street-address" required></div>
+      <div class="field"><label for="d-mailing">Mailing address <small>(only if different)</small></label><input id="d-mailing" name="mailing" type="text"></div>
+      <div class="two">
+        <div class="field"><label for="d-email">Email</label><input id="d-email" name="email" type="email" autocomplete="email"></div>
+        <div class="field"><label for="d-phone">Phone <small>(optional)</small></label><input id="d-phone" name="phone" type="tel" autocomplete="tel"></div>
+      </div>
+      <div class="two">
+        <div class="field"><label for="d-amount">Amount (CAD)</label><input id="d-amount" name="amount" type="text" inputmode="decimal" placeholder="e.g. 50" required></div>
+        <div class="field"><label for="d-method">How you sent it</label><select id="d-method" name="method"><option>Interac e‑Transfer</option><option>Online payment</option><option>Cheque</option><option>Other</option></select></div>
+      </div>
+      <div class="attest">
+        ${c.donate.attest.map((a, i) => `<label><input type="checkbox" name="attest${i}" required> <span>${inl(a)}</span></label>`).join("")}
+      </div>
+      <div class="field hp" aria-hidden="true"><label for="d-website">Leave this empty</label><input id="d-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+      <button class="btn btn-primary" type="submit">${esc(c.donate.formButton)}</button>
+      <p class="note" id="donor-note">${inl(c.donate.formNote)}</p>
+    </form>
+  </div>
+</section>` : ""}
 
 <div class="strip">
   <div class="wrap">
@@ -839,6 +896,19 @@ const SCHEMA = [
     T("hearing.reportSubtitle", "Report subtitle", "textarea"),
     T("hearing.reportSummary", "Executive summary", "textarea", { tall: true, hint: "Two or three paragraphs in your words. The rest of the report (themes, proposals, dispatches) is assembled automatically from the site. Use the \"Compile council report\" button below to produce it." }),
   ]},
+  { key: "donate", title: "Donate", fields: [
+    T("donate.enabled", "Show the donate section", "check"),
+    T("donate.eyebrow", "Small heading"), T("donate.heading", "Heading", "textarea"), T("donate.intro", "Intro", "textarea"),
+    T("donate.rules", "Eligibility rules, one per line", "lines", { hint: "These come from the Local Elections Campaign Financing Act. Check with Elections BC before changing them." }),
+    T("donate.etransferEmail", "e‑Transfer email (blank to hide)"), T("donate.etransferNote", "e‑Transfer note"),
+    T("donate.payUrl", "Online payment link (blank to hide)", "text", { hint: "A payment page you set up, e.g. a Stripe or Square payment link. Must collect the contributor's name." }),
+    T("donate.payLabel", "Online payment heading"), T("donate.payNote", "Online payment note", "textarea"), T("donate.payButton", "Online payment button"),
+    T("donate.chequeTo", "Cheques payable to (blank to hide)"), T("donate.chequeAddress", "Cheque mailing address"),
+    T("donate.fine", "Fine print", "textarea"),
+    T("donate.formHeading", "Form heading"), T("donate.formIntro", "Form intro", "textarea"),
+    T("donate.attest", "Declarations the contributor must tick, one per line", "lines"),
+    T("donate.formButton", "Form button"), T("donate.formNote", "Note under the button", "textarea"),
+  ]},
   { key: "about", title: "About Tyler", fields: [
     T("about.eyebrow", "Small heading"), T("about.heading", "Heading", "textarea"), T("about.body", "Bio", "textarea", { tall: true }),
     T("about.facts", "Quick facts, one per line", "lines"),
@@ -847,8 +917,8 @@ const SCHEMA = [
   ]},
   { key: "involved", title: "Get involved", fields: [
     T("involved.eyebrow", "Small heading"), T("involved.heading", "Heading"), T("involved.intro", "Intro", "textarea"),
-    T("involved.cards", "Cards", "list", { itemLabel: (it) => it.title || "Untitled", blank: { title: "", text: "", linkLabel: "", subject: "" }, fields: [
-      T("title", "Title"), T("text", "Text", "textarea"), T("linkLabel", "Link text"), T("subject", "Email subject line"),
+    T("involved.cards", "Cards", "list", { itemLabel: (it) => it.title || "Untitled", blank: { title: "", text: "", linkLabel: "", subject: "", href: "" }, fields: [
+      T("title", "Title"), T("text", "Text", "textarea"), T("linkLabel", "Link text"), T("subject", "Email subject line (for an email link)"), T("href", "Or link to a page section instead (e.g. #donate)"),
     ]}),
   ]},
 ];
@@ -1083,6 +1153,27 @@ function renderSite() {
   wireSite();
 }
 function wireSite() {
+  const donor = document.getElementById("donor-form");
+  if (donor) donor.addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target;
+    if (f.website && f.website.value) return;
+    const missing = [...f.querySelectorAll("[required]")].filter(el => el.type === "checkbox" ? !el.checked : !el.value.trim());
+    if (missing.length) { missing[0].focus(); f.querySelector("#donor-note").textContent = "Please fill in every required field and tick each declaration."; return; }
+    const fields = { name: f.name.value.trim(), address: f.address.value.trim(), mailing: f.mailing.value.trim() || "(same as residential)", email: f.email.value.trim() || "(not given)", phone: f.phone.value.trim() || "(not given)", amount: f.amount.value.trim(), method: f.method.value, declarations: "All " + f.querySelectorAll('.attest input').length + " declarations confirmed", date: new Date().toISOString().slice(0, 10) };
+    const body = Object.entries(fields).map(([k, v]) => k + ": " + v).join("\n");
+    const mailto = () => { root.location.href = "mailto:" + state.site.email + "?subject=" + encodeURIComponent("Contribution record: " + fields.name) + "&body=" + encodeURIComponent(body); };
+    if (!state.site.formKey || !root.fetch) return mailto();
+    const btn = f.querySelector("button[type=submit]"); const note = f.querySelector("#donor-note");
+    btn.disabled = true; note.textContent = "Sending…";
+    try {
+      const r = await fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(Object.assign({ access_key: state.site.formKey, subject: "Contribution record: " + fields.name + " ($" + fields.amount + ", " + fields.method + ")", from_name: "Tyler4Esquimalt website", botcheck: "" }, fields)) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.success) throw new Error("send failed");
+      f.innerHTML = '<div class="thanks">Thank you. Your details are with the financial agent.<small>Your contribution is recorded once the money arrives. Contributions of $100 or more are published by Elections BC with your name and amount, as the law requires.</small></div>';
+    } catch (err) { btn.disabled = false; note.textContent = "That didn't go through. Opening your email app instead…"; setTimeout(mailto, 800); }
+  });
+
   const form = document.getElementById("concern-form");
   if (form) form.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;

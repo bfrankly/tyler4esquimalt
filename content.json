@@ -299,7 +299,45 @@
         "text": "Invite a few neighbours over and I'll come listen. Coffee optional, opinions welcome.",
         "linkLabel": "Host a chat",
         "subject": "Let's host a chat"
+      },
+      {
+        "title": "Chip in",
+        "text": "A few dollars pays for signs and printing. Every contribution follows Elections BC rules, and the whole thing stays neighbour‑sized.",
+        "linkLabel": "Donate",
+        "subject": "",
+        "href": "#donate"
       }
     ]
+  },
+  "donate": {
+    "enabled": true,
+    "eyebrow": "Donate",
+    "heading": "Chip in to a neighbour‑powered campaign.",
+    "intro": "Signs, printing and a few hundred cups of coffee at kitchen tables add up. Every dollar is spent in Esquimalt. Local campaign contributions in BC follow strict rules set by Elections BC, so please read the checklist before you give.",
+    "rules": [
+      "You are a Canadian citizen or permanent resident, and you live in British Columbia.",
+      "You are giving your own money. Contributions from businesses, unions, organizations, or on someone else's behalf are not allowed.",
+      "You have not given more than **$1,429.70** in total to this campaign in 2026. That is the legal limit per person.",
+      "You are fine with your name and amount being published by Elections BC if you give **$100 or more**. This is required by law.",
+      "You understand there is no tax receipt for local election contributions."
+    ],
+    "etransferEmail": "tyler@tyler4esquimalt.ca",
+    "etransferNote": "Set the security question to something I can answer, or use auto‑deposit if offered.",
+    "payUrl": "",
+    "payLabel": "Pay online",
+    "payNote": "Credit or debit card through a secure payment page.",
+    "payButton": "Contribute online",
+    "chequeTo": "",
+    "chequeAddress": "",
+    "fine": "Contributions are received by Tyler Russell, financial agent, and deposited to the campaign account. Anonymous contributions are limited to $50 in total and cannot be made online. A contribution the campaign cannot legally accept will be returned within 30 days. Questions about the rules: Elections BC, 1‑800‑661‑8683, or [elections.bc.ca](https://elections.bc.ca/local-elections/making-a-campaign-contribution/).",
+    "formHeading": "Tell the financial agent who you are",
+    "formIntro": "The law requires a record of every contributor's full name and residential address. Fill this in when you send your contribution, whichever way you send it.",
+    "attest": [
+      "I am a Canadian citizen or permanent resident and a resident of British Columbia.",
+      "This contribution is from my own money and is not being reimbursed by anyone.",
+      "With this contribution, my total to this campaign in 2026 is $1,429.70 or less."
+    ],
+    "formButton": "Send my details",
+    "formNote": "Goes to the financial agent only. Not published, except as Elections BC requires for contributions of $100 or more."
   }
 }
