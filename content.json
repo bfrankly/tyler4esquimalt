@@ -315,7 +315,7 @@
     "enabled": true,
     "eyebrow": "Donate",
     "heading": "Chip in to a neighbour‑powered campaign.",
-    "intro": "Signs, printing and a few hundred cups of coffee at kitchen tables add up. Every dollar is spent in Esquimalt, and $50 pays for one lawn sign, so if you'd like one on your lawn, say so in the form below. Local campaign contributions in BC follow strict rules set by Elections BC, so please read the checklist before you give.",
+    "intro": "Every dollar is spent in Esquimalt, and $50 pays for one lawn sign, so if you'd like one on your lawn, say so in the form below. Local campaign contributions in BC follow strict rules set by Elections BC, so please read the checklist before you give.",
     "rules": [
       "You are a Canadian citizen or permanent resident, and you live in British Columbia.",
       "You are giving your own money. Contributions from businesses, unions, organizations, or on someone else's behalf are not allowed.",
@@ -324,7 +324,7 @@
       "You understand there is no tax receipt for local election contributions."
     ],
     "etransferEmail": "tyler@tyler4esquimalt.ca",
-    "etransferNote": "Set the security question to something I can answer, or use auto‑deposit if offered.",
+    "etransferNote": "",
     "payUrl": "",
     "payLabel": "Pay online",
     "payNote": "Credit or debit card through a secure payment page.",
