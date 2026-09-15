@@ -285,10 +285,10 @@
     "intro": "This is a neighbour‑powered campaign. A sign in a window or an hour on a Saturday goes a long way in a town this size.",
     "cards": [
       {
-        "title": "Put up a sign",
-        "text": "A lawn or window sign in your part of town. I'll drop it off and pick it up after October 17.",
-        "linkLabel": "Request a sign",
-        "subject": "I'd like a sign"
+        "title": "Wear a pin",
+        "text": "A campaign pin for your jacket or bag, free, and I'll drop it by. Lawn signs cost $50 apiece, so they go up as contributions come in: chip in $50, say you'd like one, and it's yours.",
+        "linkLabel": "Ask for a pin",
+        "subject": "I'd like a pin"
       },
       {
         "title": "Knock doors with me",
@@ -315,7 +315,7 @@
     "enabled": true,
     "eyebrow": "Donate",
     "heading": "Chip in to a neighbour‑powered campaign.",
-    "intro": "Signs, printing and a few hundred cups of coffee at kitchen tables add up. Every dollar is spent in Esquimalt. Local campaign contributions in BC follow strict rules set by Elections BC, so please read the checklist before you give.",
+    "intro": "Signs, printing and a few hundred cups of coffee at kitchen tables add up. Every dollar is spent in Esquimalt, and $50 pays for one lawn sign, so if you'd like one on your lawn, say so in the form below. Local campaign contributions in BC follow strict rules set by Elections BC, so please read the checklist before you give.",
     "rules": [
       "You are a Canadian citizen or permanent resident, and you live in British Columbia.",
       "You are giving your own money. Contributions from businesses, unions, organizations, or on someone else's behalf are not allowed.",
