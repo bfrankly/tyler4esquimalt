@@ -13,7 +13,7 @@
     "votingHeading": "General voting day is Saturday, October 17, 2026.",
     "votingText": "Advance voting days and polling places are set by the Township. Check [esquimalt.ca](https://www.esquimalt.ca) for dates, locations and what to bring.",
     "votingButton": "Tell me your concern",
-    "landAck": "Esquimalt is on the traditional territory of the Esquimalt and Songhees Nations, Lekwungen‑speaking peoples who have cared for this land and water since time immemorial. We live, work and play here as their guests.",
+    "landAck": "Esquimalt is on the traditional territory of the lək̓ʷəŋən‑speaking peoples, known today as the Songhees Nation and the Xʷsepsəm (Esquimalt) Nation, who have cared for this land and water since time immemorial. We live, work and play here as their guests.",
     "agentName": "Tyler Russell",
     "agentContact": "tyler@tyler4esquimalt.ca",
     "copyright": "© 2026 Tyler Russell",
@@ -68,6 +68,13 @@
         "linkTo": ""
       },
       {
+        "title": "Honour the Songhees and Xʷsepsəm Nations",
+        "text": "Increasingly honour the lək̓ʷəŋən‑speaking peoples, the Songhees Nation and the Xʷsepsəm (Esquimalt) Nation, on whose land we live, work and play, while deepening collaboration between the Township and both Nations.",
+        "green": false,
+        "linkLabel": "",
+        "linkTo": ""
+      },
+      {
         "title": "Pace development with infrastructure",
         "text": "Keep new development in line with the roads, pipes, parks and services that have to support it.",
         "green": false,
@@ -84,13 +91,6 @@
       {
         "title": "Bring in more outside investment",
         "text": "Work with staff to increase the grant funding, philanthropy and other external investment that goes into enhancing our community.",
-        "green": false,
-        "linkLabel": "",
-        "linkTo": ""
-      },
-      {
-        "title": "Honour the Esquimalt and Songhees Nations",
-        "text": "Increasingly honour the Esquimalt and Songhees First Nations, on whose land we live, work and play, while deepening collaboration between the Township and local First Nations communities.",
         "green": false,
         "linkLabel": "",
         "linkTo": ""
@@ -231,7 +231,7 @@
           },
           {
             "heading": "Paying for it",
-            "text": "There are a number of established federal and provincial programs that Esquimalt could apply to in order to fund this. Bringing that outside investment into town is platform item 7."
+            "text": "There are a number of established federal and provincial programs that Esquimalt could apply to in order to fund this. Bringing that outside investment into town is platform item 8."
           }
         ],
         "glance": [
@@ -257,7 +257,7 @@
           },
           {
             "label": "Platform items",
-            "value": "1 · Fix the daily traffic jam\n3 · Easier to walk and ride\n7 · More outside investment"
+            "value": "1 · Fix the daily traffic jam\n3 · Easier to walk and ride\n8 · More outside investment"
           }
         ],
         "cta": "Tell me what you think of this →"
