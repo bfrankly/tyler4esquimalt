@@ -301,6 +301,7 @@ section + section { border-top: 1px solid var(--line); }
 .dispatch-body ul { margin: .6em 0 0; padding-left: 1.2em; }
 .dispatch-body li + li { margin-top: .35em; }
 .dispatch .d-num { font-weight: 800; color: var(--arbutus); }
+.dispatch > summary:focus:not(:focus-visible) { outline: none; }
 .dispatch:target { scroll-margin-top: 76px; }
 .dispatch:target > summary .d-title { text-decoration: underline; text-decoration-color: var(--arbutus); text-underline-offset: 6px; }
 .d-share { margin-top: 1.5rem; font-family: var(--display); font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
@@ -1161,6 +1162,7 @@ section + section { border-top: 1px solid var(--line); }
 .dispatch-body ul { margin: .6em 0 0; padding-left: 1.2em; }
 .dispatch-body li + li { margin-top: .35em; }
 .dispatch .d-num { font-weight: 800; color: var(--arbutus); }
+.dispatch > summary:focus:not(:focus-visible) { outline: none; }
 .dispatch:target { scroll-margin-top: 76px; }
 .dispatch:target > summary .d-title { text-decoration: underline; text-decoration-color: var(--arbutus); text-underline-offset: 6px; }
 .d-share { margin-top: 1.5rem; font-family: var(--display); font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
@@ -2097,6 +2099,11 @@ function wireSite() {
   };
   if (!wireSite.hashBound) { root.addEventListener("hashchange", openTarget); wireSite.hashBound = true; }
   openTarget();
+  // Opening a dispatch puts its permanent link in the address bar; closing it steps back to #hearing.
+  document.querySelectorAll("details.dispatch").forEach(d => d.addEventListener("toggle", () => {
+    if (d.open) history.replaceState(null, "", "#" + d.id);
+    else if (location.hash === "#" + d.id) history.replaceState(null, "", "#hearing");
+  }));
   document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", async () => {
     const url = location.origin + location.pathname + b.dataset.copy;
     try { await navigator.clipboard.writeText(url); b.textContent = "Link copied"; } catch (e) { prompt("Copy this link:", url); }
