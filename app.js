@@ -297,6 +297,12 @@ section + section { border-top: 1px solid var(--line); }
 .dispatch-body h4 { font-size: 1.15rem; font-weight: 700; margin: 1.8em 0 .5em; color: var(--link); }
 .dispatch-body ul { margin: .6em 0 0; padding-left: 1.2em; }
 .dispatch-body li + li { margin-top: .35em; }
+.dispatch .d-num { font-weight: 800; color: var(--arbutus); }
+.dispatch:target { scroll-margin-top: 76px; }
+.dispatch:target > summary .d-title { text-decoration: underline; text-decoration-color: var(--arbutus); text-underline-offset: 6px; }
+.d-share { margin-top: 1.5rem; font-family: var(--display); font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.mini-link { font: inherit; font-weight: 700; color: var(--link); background: none; border: 1px solid var(--line); border-radius: 999px; padding: .35rem .8rem; cursor: pointer; }
+.mini-link:hover { border-color: var(--link); }
 @media (max-width: 640px) { .dispatch > summary { grid-template-columns: 1fr; } .dispatch .d-lede, .dispatch-body { padding-left: 0; } }
 
 /* about */
@@ -438,6 +444,12 @@ function blocks(s) {
 const lines = (s) => String(s || "").split("\n").map(l => l.trim()).filter(Boolean);
 const chip = (kind, c) => kind === "advocate" ? `<span class="chip">${esc(c.hearing.tagAdvocate)}</span>`
   : kind === "compiled" ? `<span class="chip neutral">${esc(c.hearing.tagCompiled)}</span>` : "";
+
+// Stable anchor for a dispatch: its permanent number, never its position.
+function dispatchId(d, c) {
+  const n = d.n || ((c.hearing.dispatches.length - c.hearing.dispatches.indexOf(d)));
+  return "dispatch-" + String(n).padStart(2, "0");
+}
 
 /* ---------------- page template ---------------- */
 function renderBody(c) {
@@ -585,10 +597,11 @@ ${hasHearing ? `<section id="hearing">
     </div>
     ${(c.hearing.dispatches || []).length ? `<div class="dispatches">
       <h3>${esc(c.hearing.dispatchesHeading || "Dispatches from the doorstep")}</h3>
-      ${c.hearing.dispatches.map((d, i) => `<details class="dispatch"${i === 0 ? " open" : ""} id="dispatch-${i + 1}">
-        <summary><span class="d-title">${inl(d.title)}</span><span class="d-date">${esc(d.date)}</span>${d.summary ? `<span class="d-lede">${inl(d.summary)}</span>` : ""}</summary>
-        <div class="prose dispatch-body">${blocks(d.body)}</div>
-      </details>`).join("\n      ")}
+      ${c.hearing.dispatches.map((d, i) => { const id = dispatchId(d, c); return `<details class="dispatch"${i === 0 ? " open" : ""} id="${id}">
+        <summary><span class="d-title">${inl(d.title)}</span><span class="d-date"><span class="d-num">No. ${esc(String(d.n || "").padStart(2, "0"))}</span> · ${esc(d.date)}</span>${d.summary ? `<span class="d-lede">${inl(d.summary)}</span>` : ""}</summary>
+        <div class="prose dispatch-body">${blocks(d.body)}
+        <p class="d-share"><button type="button" class="mini-link" data-copy="#${id}">Copy link to this dispatch</button> <span class="d-share-url">tyler4esquimalt.ca/#${id}</span></p></div>
+      </details>`; }).join("\n      ")}
     </div>` : ""}
   </div>
 </section>` : ""}
@@ -874,8 +887,8 @@ const SCHEMA = [
       T("placeholder", "Show as a dashed placeholder", "check"),
     ], hint: "Delete every card to hide the whole section." }),
     T("hearing.dispatchesHeading", "Dispatches heading"),
-    T("hearing.dispatches", "Dispatches (full write-ups)", "list", { itemLabel: (d) => d.title || "Untitled dispatch", blank: { title: "", date: "", summary: "", body: "" }, fields: [
-      T("title", "Title"), T("date", "Date line"), T("summary", "One-line lede", "textarea"),
+    T("hearing.dispatches", "Dispatches (full write-ups)", "list", { itemLabel: (d) => ("No. " + String(d.n || "?").padStart(2, "0") + " · " + (d.title || "Untitled dispatch")), blank: () => ({ n: Math.max(0, ...state.hearing.dispatches.map(x => x.n || 0)) + 1, title: "", date: "", summary: "", body: "" }), fields: [
+      T("n", "Number (permanent; it makes the shareable link, e.g. #dispatch-03)", "text"), T("title", "Title"), T("date", "Date line"), T("summary", "One-line lede", "textarea"),
       T("body", "Full text", "textarea", { tall: true, hint: "Blank line between paragraphs. Start a line with \"## \" for a subheading, \"- \" for a bullet, and write links as [label](https://...)." }),
     ], hint: "The newest dispatch should be first; it opens expanded, older ones stay collapsed." }),
     T("hearing.tagAdvocate", "Orange tag text"), T("hearing.tagAdvocateNote", "Orange tag meaning"),
@@ -1077,7 +1090,7 @@ const Editor = {
 
   onInput(e) {
     const t = e.target, path = t.dataset.path; if (!path || t.type === "file" || t.type === "checkbox" || t.tagName === "SELECT") return;
-    setP(state, path, t.dataset.kind === "lines" ? lines(t.value) : t.value);
+    setP(state, path, t.dataset.kind === "lines" ? lines(t.value) : (/\.n$/.test(path) && /^\d+$/.test(t.value.trim()) ? Number(t.value) : t.value));
     this.touched();
   },
   onChange(e) {
@@ -1102,7 +1115,7 @@ const Editor = {
     if (a === "report") return this.report();
     if (a === "clear-photo") { setP(state, path, ""); this.touched(); this.renderFields(); return; }
     const arr = getP(state, path); const i = Number(b.dataset.index);
-    if (a === "add") { const spec = listSpec(path); arr.push(JSON.parse(JSON.stringify((spec && spec.blank) || {}))); }
+    if (a === "add") { const spec = listSpec(path); const b = spec && spec.blank; arr.push(typeof b === "function" ? b() : JSON.parse(JSON.stringify(b || {}))); }
     else if (a === "remove") { if (!confirm("Delete this item?")) return; arr.splice(i, 1); }
     else if (a === "move") { const j = i + Number(b.dataset.dir); if (j < 0 || j >= arr.length) return; [arr[i], arr[j]] = [arr[j], arr[i]]; }
     this.touched(); this.renderFields();
@@ -1213,6 +1226,19 @@ function renderSite() {
   wireSite();
 }
 function wireSite() {
+  const openTarget = () => {
+    const m = /^#(dispatch-\d+|proposal-\d+)$/.exec(location.hash); if (!m) return;
+    const el = document.getElementById(m[1]); if (!el) return;
+    if (el.tagName === "DETAILS") el.open = true;
+    el.scrollIntoView({ block: "start" });
+  };
+  if (!wireSite.hashBound) { root.addEventListener("hashchange", openTarget); wireSite.hashBound = true; }
+  openTarget();
+  document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", async () => {
+    const url = location.origin + location.pathname + b.dataset.copy;
+    try { await navigator.clipboard.writeText(url); b.textContent = "Link copied"; } catch (e) { prompt("Copy this link:", url); }
+    setTimeout(() => { b.textContent = "Copy link to this dispatch"; }, 2000);
+  }));
   const donor = document.getElementById("donor-form");
   if (donor) donor.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
