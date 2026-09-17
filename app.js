@@ -267,6 +267,8 @@ section + section { border-top: 1px solid var(--line); }
 /* proposals */
 .proposal { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 2.5rem 4rem; align-items: start; }
 @media (max-width: 800px) { .proposal { grid-template-columns: 1fr; } }
+.proposal h3 a.self { color: inherit; text-decoration: none; }
+.proposal h3 a.self:hover { text-decoration: underline; text-decoration-color: var(--arbutus); text-underline-offset: 8px; }
 .proposal + .proposal { margin-top: 4rem; padding-top: 3.5rem; border-top: 1px solid var(--line); }
 .proposal-id { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
 .proposal-id .num { font-family: var(--display); font-weight: 800; font-size: 2.4rem; color: var(--arbutus); line-height: 1; font-variant-numeric: tabular-nums; }
@@ -631,7 +633,7 @@ ${hasProposals ? `<section id="proposals">
           <span class="num">${String(p.n || i + 1).padStart(2, "0")}</span>
           ${chip(p.tag, c)}
         </div>
-        <h3>${inl(p.title)}</h3>
+        <h3><a class="self" href="#${id}">${inl(p.title)}</a></h3>
         <p class="sub">${inl(p.subtitle)}</p>
         ${p.sections.map(s => `<h4>${inl(s.heading)}</h4>\n        ${blocks(s.text)}`).join("\n        ")}
       </div>
@@ -1241,12 +1243,38 @@ function wireSite() {
     const m = /^#(dispatch-\d+|proposal-\d+)$/.exec(location.hash); if (!m) return;
     const el = document.getElementById(m[1]); if (!el) return;
     if (el.tagName === "DETAILS") el.open = true;
-    el.scrollIntoView({ block: "start" });
+    el.scrollIntoView({ block: "start", behavior: "instant" });
   };
   if (!wireSite.hashBound) { root.addEventListener("hashchange", openTarget); wireSite.hashBound = true; }
   openTarget();
+  // While reading the proposals, the address bar follows the proposal on screen.
+  if (!wireSite.spyBound) {
+    wireSite.spyBound = true; let ticking = false;
+    root.addEventListener("scroll", () => {
+      if (ticking) return; ticking = true;
+      setTimeout(() => {
+        ticking = false;
+        const sec = document.getElementById("proposals"); if (!sec) return;
+        const line = 140, sr = sec.getBoundingClientRect();
+        if (sr.top > line || sr.bottom < line) { // not reading the proposals section: let go of a stale proposal link
+          if (/^#proposal/.test(location.hash)) {
+            let here = "";
+            document.querySelectorAll("section[id], header[id]").forEach(x => { const r = x.getBoundingClientRect(); if (r.top <= line && r.bottom > line) here = x.id; });
+            history.replaceState(null, "", here ? "#" + here : location.pathname + location.search);
+          }
+          return;
+        }
+        let current = "proposals";
+        sec.querySelectorAll("article.proposal").forEach(a => { const r = a.getBoundingClientRect(); if (r.top <= line && r.bottom > line) current = a.id; });
+        if (location.hash !== "#" + current) history.replaceState(null, "", "#" + current);
+      }, 120);
+    }, { passive: true });
+  }
   // Opening a dispatch puts its permanent link in the address bar; closing it steps back to #hearing.
+  // Browsers fire "toggle" for a dispatch that is already open when the page renders; only react to real clicks.
+  const armedAt = Date.now() + 600;
   document.querySelectorAll("details.dispatch").forEach(d => d.addEventListener("toggle", () => {
+    if (Date.now() < armedAt) return;
     if (d.open) history.replaceState(null, "", "#" + d.id);
     else if (location.hash === "#" + d.id) history.replaceState(null, "", "#hearing");
   }));
