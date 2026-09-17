@@ -299,7 +299,9 @@ section + section { border-top: 1px solid var(--line); }
 .dispatch-body li + li { margin-top: .35em; }
 .dispatch .d-num { font-weight: 800; color: var(--arbutus); }
 .dispatch > summary:focus:not(:focus-visible) { outline: none; }
-.dispatch:target { scroll-margin-top: 76px; }
+.dispatch:target, .proposal:target { scroll-margin-top: 76px; }
+.proposal:target h3 { text-decoration: underline; text-decoration-color: var(--arbutus); text-underline-offset: 8px; }
+.glance .d-share { margin-top: 0; }
 .dispatch:target > summary .d-title { text-decoration: underline; text-decoration-color: var(--arbutus); text-underline-offset: 6px; }
 .d-share { margin-top: 1.5rem; font-family: var(--display); font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
 .mini-link { font: inherit; font-weight: 700; color: var(--link); background: none; border: 1px solid var(--line); border-radius: 999px; padding: .35rem .8rem; cursor: pointer; }
@@ -450,6 +452,11 @@ const chip = (kind, c) => kind === "advocate" ? `<span class="chip">${esc(c.hear
 function dispatchId(d, c) {
   const n = d.n || ((c.hearing.dispatches.length - c.hearing.dispatches.indexOf(d)));
   return "dispatch-" + String(n).padStart(2, "0");
+}
+
+function proposalId(p, c) {
+  const n = p.n || (c.proposals.items.indexOf(p) + 1);
+  return "proposal-" + String(n).padStart(2, "0");
 }
 
 /* ---------------- page template ---------------- */
@@ -616,10 +623,10 @@ ${hasProposals ? `<section id="proposals">
       </div>
       <p>${inl(c.proposals.intro)}</p>
     </div>
-    ${c.proposals.items.map((p, i) => `<article class="proposal" id="proposal-${i + 1}">
+    ${c.proposals.items.map((p, i) => { const id = proposalId(p, c); return `<article class="proposal" id="${id}">
       <div class="prose">
         <div class="proposal-id">
-          <span class="num">${String(i + 1).padStart(2, "0")}</span>
+          <span class="num">${String(p.n || i + 1).padStart(2, "0")}</span>
           ${chip(p.tag, c)}
         </div>
         <h3>${inl(p.title)}</h3>
@@ -632,8 +639,9 @@ ${hasProposals ? `<section id="proposals">
           ${p.glance.map(g => `<div><dt>${inl(g.label)}</dt><dd>${inl(g.value)}</dd></div>`).join("\n          ")}
         </dl>
         ${p.cta ? `<p class="links"><a href="#voice">${esc(p.cta)}</a></p>` : ""}
+        <p class="d-share"><button type="button" class="mini-link" data-copy="#${id}">Copy link to this proposal</button> <span class="d-share-url">tyler4esquimalt.ca/#${id}</span></p>
       </aside>
-    </article>`).join("\n    ")}
+    </article>`; }).join("\n    ")}
   </div>
 </section>` : ""}
 
@@ -897,10 +905,10 @@ const SCHEMA = [
   ]},
   { key: "proposals", title: "Proposals", fields: [
     T("proposals.eyebrow", "Small heading"), T("proposals.heading", "Heading"), T("proposals.intro", "Intro", "textarea"),
-    T("proposals.items", "Proposals", "list", { itemLabel: (it, i) => String(i + 1).padStart(2, "0") + " " + (it.title || "Untitled"),
-      blank: { title: "", subtitle: "", tag: "advocate", sections: [{ heading: "The problem", text: "" }, { heading: "The proposal", text: "" }], glance: [], cta: "Tell me what you think of this →" },
+    T("proposals.items", "Proposals", "list", { itemLabel: (it) => "No. " + String(it.n || "?").padStart(2, "0") + " · " + (it.title || "Untitled"),
+      blank: () => ({ n: Math.max(0, ...state.proposals.items.map(x => x.n || 0)) + 1, title: "", subtitle: "", tag: "advocate", sections: [{ heading: "The problem", text: "" }, { heading: "The proposal", text: "" }], glance: [], cta: "Tell me what you think of this →" }),
       fields: [
-        T("title", "Title"), T("subtitle", "One-line summary", "textarea"),
+        T("n", "Number (permanent; it makes the shareable link, e.g. #proposal-02)", "text"), T("title", "Title"), T("subtitle", "One-line summary", "textarea"),
         T("tag", "Tag", "select", { options: [["advocate", "I'll advocate for this"], ["compiled", "Compiled for council"], ["none", "No tag"]] }),
         T("sections", "Sections", "list", { itemLabel: (s) => s.heading || "Untitled section", blank: { heading: "", text: "" }, fields: [
           T("heading", "Heading"), T("text", "Text", "textarea", { tall: true, hint: "Blank line between paragraphs. Start lines with \"- \" for a bullet list." }),
@@ -909,7 +917,7 @@ const SCHEMA = [
           T("label", "Label"), T("value", "Value", "textarea"),
         ]}),
         T("cta", "Link at the bottom of the panel"),
-      ], hint: "Proposals are numbered in this order. Delete all of them to hide the section." }),
+      ], hint: "Each proposal keeps its number for life, so links never break. Delete all of them to hide the section." }),
   ]},
   { key: "report", title: "Council report", fields: [
     T("hearing.reportTitle", "Report title"),
@@ -1242,8 +1250,10 @@ function wireSite() {
   }));
   document.querySelectorAll("[data-copy]").forEach(b => b.addEventListener("click", async () => {
     const url = location.origin + location.pathname + b.dataset.copy;
+    const label = b.textContent;
     try { await navigator.clipboard.writeText(url); b.textContent = "Link copied"; } catch (e) { prompt("Copy this link:", url); }
-    setTimeout(() => { b.textContent = "Copy link to this dispatch"; }, 2000);
+    history.replaceState(null, "", b.dataset.copy);
+    setTimeout(() => { b.textContent = label; }, 2000);
   }));
   const donor = document.getElementById("donor-form");
   if (donor) donor.addEventListener("submit", async (e) => {
