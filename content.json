@@ -99,8 +99,8 @@
         "title": "Bring in a right to cool",
         "text": "Table a bylaw, as New Westminster has done, so that every rental home has at least one room that stays at 26°C or lower during heatwaves. Tenants should not have to endure dangerous indoor heat.",
         "green": false,
-        "linkLabel": "Where this came from: day one at the door →",
-        "linkTo": "#dispatch-01"
+        "linkLabel": "Proposal 02: a Right to Cool bylaw →",
+        "linkTo": "#proposal-02"
       },
       {
         "title": "Leave it better than we found it",
@@ -181,7 +181,7 @@
       {
         "title": "The right to cool",
         "meta": "Day one at the door",
-        "text": "A bylaw so every rental unit has at least one room at 26°C or lower during heatwaves. New Westminster has one. I will table a proposal on this.",
+        "text": "A bylaw so every rental unit has at least one room at 26°C or lower on hot nights, and tenants can always use their own cooling. New Westminster has one. See Proposal 02.",
         "tag": "advocate",
         "placeholder": false
       },
@@ -340,6 +340,77 @@
         ],
         "cta": "Tell me what you think of this →",
         "n": 1
+      },
+      {
+        "n": 2,
+        "title": "A Right to Cool",
+        "subtitle": "A safe‑temperature standard for Esquimalt rental homes: tenants may always use cooling devices, and every occupied rental unit has at least one room that stays at 26°C or lower on hot nights.",
+        "tag": "advocate",
+        "sections": [
+          {
+            "heading": "The problem",
+            "text": "The 2021 heat dome was the deadliest weather event in Canadian history. The BC Coroners Service attributed 619 deaths to it across the province, and found that 98 percent of those people died indoors, most of them older, many living alone, in homes without adequate cooling. Thirty‑three of them lived in New Westminster.\n\nHeat waves are becoming a regular part of life here. A large share of Esquimalt households rent, many in older apartment buildings built with no thought of cooling. Tenants cannot renovate their own homes, and some leases still forbid air conditioners. New buildings are already covered: since 2024 the BC Building Code requires every new home to have one living space designed to stay at or below 26°C. Existing rental housing, where the risk is greatest, has no such protection."
+          },
+          {
+            "heading": "Why the summer of 2027",
+            "text": "In its latest outlook, [NOAA reports that El Niño has formed and is strengthening](https://www.noaa.gov/news-release/el-nino-forms-expected-to-strengthen-say-noaa-forecasters), with a greater than 90 percent chance of a very strong event through the fall and winter of 2026 to 2027, and conditions expected to persist into spring.\n\nThat matters for timing. The year that follows a strong El Niño has repeatedly been among the hottest on record globally: 1998, 2016 and 2024 all followed one. El Niño does not cause any particular heat wave, and nobody can promise what next July will bring to Esquimalt. But it loads the dice, and 2027 is the year the dice are most heavily loaded.\n\nA bylaw adopted in 2028 would arrive a summer late. That is why this proposal asks staff to report back in time for adoption before April 2027, and why the first step, guaranteeing tenants the right to use their own cooling devices, should be in force before the first warm week of next year."
+          },
+          {
+            "heading": "The proposal",
+            "text": "Follow the two steps New Westminster took, in the same order.\n\n- **Step one, the right to cool.** A landlord may not prohibit a tenant from installing or using a portable cooling device. New Westminster adopted this in 2025.\n- **Step two, a safe temperature.** In every occupied rental unit, at least one living space, not counting the kitchen or bathroom, must not exceed an average of 26°C between 8pm and 8am, from April 1 to October 31. [New Westminster adopted this on June 8, 2026](https://www.newwestcity.ca/cooling-requirements).\n\nThe standard does not require air conditioning or a heat pump. Owners choose how to meet it: shading, window film, thermal curtains, ceiling fans, air sealing, portable units, or a heat pump where it makes sense. The rule is about the result, not the equipment."
+          },
+          {
+            "heading": "How it would work in Esquimalt",
+            "text": "Esquimalt already licenses rental apartment properties under the [Business Licence and Regulation Bylaw, No. 3144](https://esquimalt.ca.legistar.com/View.ashx?GUID=EC763462-8CB9-4BC0-80C9-4D5003264CCC&ID=62029&M=F), adopted in 2024. New Westminster used exactly that kind of bylaw as its vehicle, so the legal path is proven and no new bureaucracy is needed.\n\n- **Timeline.** Bring the amendment forward early in the term so that step one is in force for the summer of 2027, and step two applies from April 1, 2027 with a compliance‑first approach in its first season.\n- **Compliance before tickets.** As in New Westminster, a complaint leads first to a conversation and a compliance plan with reasonable timelines. Fines are the backstop. New Westminster's range from $200 to $750 and may be issued daily.\n- **Exemptions.** Where an owner has made reasonable efforts and the building simply cannot meet the standard, a report from a registered professional supports a two‑year exemption, after which the question is revisited.\n- **Help for owners.** Pair the rule with a plain‑language cooling guide, encouragement of building cooling audits, and active promotion of provincial and utility rebates for heat pumps and efficiency upgrades in rental buildings."
+          },
+          {
+            "heading": "Protecting tenants from the cost",
+            "text": "A cooling rule must not become a reason for rents to jump or for tenants to be displaced. Two things follow. Staff should report on how to keep compliance costs modest, which is why the standard covers one room and leaves the method open. And Council should ask the Province to write a right to cool into the Residential Tenancy Act, with protections against passing retrofit costs to tenants, as [Ecotrust Canada's 2025 report](https://ecotrust.ca/latest/research/safe-temperatures-in-bc-rental-housing-municipal-and-provincial-policy-pathways-2025/) recommends."
+          },
+          {
+            "heading": "How we'd know it worked",
+            "text": "- Complaints received, and how many were resolved through compliance plans without fines\n- Rental buildings that have completed a cooling audit\n- Exemptions requested and granted\n- Heat‑related emergency calls from rental buildings during heat warnings, compared year over year\n- A short tenant survey after the first full summer"
+          },
+          {
+            "heading": "Draft motion",
+            "text": "THAT Council direct staff to report back, in time for adoption before April 2027, with amendments to the Business Licence and Regulation Bylaw, No. 3144, modelled on the City of New Westminster's Business Regulations and Licensing (Rental Units) Bylaw amendments of 2025 and 2026, that would (1) prevent owners of rental units from prohibiting tenants' use of cooling devices, and (2) require that at least one living space in each occupied rental unit not exceed an average of 26°C between 8pm and 8am from April 1 to October 31; and\n\nTHAT the report include a compliance‑first enforcement approach, an exemption process, supports for property owners, and options to protect tenants from resulting rent increases; and\n\nTHAT the Mayor write to the Minister of Housing asking that a right to cool be added to the Residential Tenancy Act."
+          }
+        ],
+        "glance": [
+          {
+            "label": "The standard",
+            "value": "One living space at or below an average of 26°C, 8pm to 8am"
+          },
+          {
+            "label": "When",
+            "value": "April 1 to October 31 each year"
+          },
+          {
+            "label": "Also",
+            "value": "Landlords cannot prohibit tenants' cooling devices"
+          },
+          {
+            "label": "Why now",
+            "value": "A very strong El Niño raises the odds of a record‑hot 2027"
+          },
+          {
+            "label": "Legal vehicle",
+            "value": "Business Licence and Regulation Bylaw No. 3144, which already licenses rental apartments"
+          },
+          {
+            "label": "Modelled on",
+            "value": "New Westminster, adopted 2025 and June 2026"
+          },
+          {
+            "label": "Enforcement",
+            "value": "Complaint‑driven; compliance plan first, fines as backstop"
+          },
+          {
+            "label": "Platform item",
+            "value": "9 · Bring in a right to cool"
+          }
+        ],
+        "cta": "Tell me what you think of this →"
       }
     ]
   },
