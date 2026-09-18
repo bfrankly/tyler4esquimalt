@@ -558,5 +558,17 @@
     ],
     "formButton": "Send my details",
     "formNote": "Goes to the financial agent only. Not published, except as Elections BC requires for contributions of $100 or more."
+  },
+  "updates": {
+    "enabled": true,
+    "eyebrow": "Dispatches from the doorstep",
+    "heading": "What I'm hearing, as I hear it.",
+    "intro": "I'm knocking on doors across Esquimalt and writing up what neighbours tell me, by theme and never by name, along with what I'd do about it. Here are the latest.",
+    "count": 3,
+    "allLabel": "Read all the dispatches →",
+    "signupHeading": "Get each dispatch by email",
+    "signupIntro": "A short email when a new dispatch or proposal goes up. No more than a few a week, and nothing else.",
+    "button": "Sign me up",
+    "consent": "By signing up you agree to receive campaign updates by email from Tyler Russell. Unsubscribe any time by replying to any message. Your address is never shared."
   }
 }

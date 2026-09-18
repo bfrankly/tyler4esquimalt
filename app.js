@@ -178,6 +178,24 @@ a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3
 .hero-lead .actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
 @media (max-width: 800px) { .hero-lead { grid-template-columns: 1fr; } }
 
+/* latest dispatches + mailing list, right under the hero */
+#updates { padding: 0 0 3.5rem; border-top: 0; }
+.updates { background: var(--tint); border-radius: 8px; padding: clamp(1.5rem, 4vw, 2.75rem); display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 2rem 3.5rem; align-items: start; }
+@media (max-width: 800px) { .updates { grid-template-columns: 1fr; } }
+.updates h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 800; margin-top: .4rem; }
+.updates .intro { margin-top: .75rem; color: var(--muted); max-width: 52ch; }
+.latest { list-style: none; margin: 1.4rem 0 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+.latest li { border-bottom: 1px solid var(--line); }
+.latest a { display: grid; grid-template-columns: 3.2rem 1fr; gap: .2rem .8rem; padding: .85rem 0; text-decoration: none; color: var(--ink); align-items: baseline; }
+.latest a:hover .t { text-decoration: underline; text-decoration-color: var(--arbutus); text-underline-offset: 4px; }
+.latest .n { font-family: var(--display); font-weight: 800; color: var(--arbutus); font-size: .95rem; font-variant-numeric: tabular-nums; }
+.latest .t { font-family: var(--display); font-weight: 700; font-size: 1.12rem; line-height: 1.2; }
+.latest .d { grid-column: 2; font-family: var(--display); font-size: .82rem; color: var(--muted); }
+.updates .all { display: inline-block; margin-top: 1.1rem; font-family: var(--display); font-weight: 700; font-size: .95rem; }
+.updates .form { box-shadow: none; }
+.updates .form h3 { font-size: 1.25rem; }
+.d-sub { font-family: var(--display); font-weight: 700; font-size: .92rem; padding-bottom: .5rem; }
+
 /* tide line divider */
 .tide { display: block; width: 100%; height: 22px; color: var(--line); }
 
@@ -508,6 +526,31 @@ function renderBody(c) {
   </div>
 </header>
 
+${c.updates && c.updates.enabled && c.hearing.dispatches.length ? `<section id="updates">
+  <div class="wrap">
+    <div class="updates">
+      <div>
+        <p class="eyebrow">${esc(c.updates.eyebrow)}</p>
+        <h2>${inl(c.updates.heading)}</h2>
+        <p class="intro">${inl(c.updates.intro)}</p>
+        <ul class="latest">
+          ${c.hearing.dispatches.slice(0, Math.max(1, parseInt(c.updates.count, 10) || 3)).map(d => `<li><a href="#${dispatchId(d, c)}"><span class="n">No. ${esc(String(d.n || "").padStart(2, "0"))}</span><span class="t">${inl(d.title)}</span><span class="d">${esc(d.date)}</span></a></li>`).join("")}
+        </ul>
+        <a class="all" href="#hearing">${esc(c.updates.allLabel)}</a>
+      </div>
+      <form class="form" id="signup-form" novalidate>
+        <h3>${inl(c.updates.signupHeading)}</h3>
+        <p class="note">${inl(c.updates.signupIntro)}</p>
+        <div class="field"><label for="s-email">Email</label><input id="s-email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="s-name">First name <small>(optional)</small></label><input id="s-name" name="name" type="text" autocomplete="given-name"></div>
+        <div class="field hp" aria-hidden="true"><label for="s-website">Leave this empty</label><input id="s-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <button class="btn btn-primary" type="submit">${esc(c.updates.button)}</button>
+        <p class="note" id="signup-note">${inl(c.updates.consent)}</p>
+      </form>
+    </div>
+  </div>
+</section>` : ""}
+
 <svg class="tide" viewBox="0 0 1200 22" preserveAspectRatio="none" aria-hidden="true">
   <path d="M0 11 C 50 0, 100 0, 150 11 S 250 22, 300 11 S 400 0, 450 11 S 550 22, 600 11 S 700 0, 750 11 S 850 22, 900 11 S 1000 0, 1050 11 S 1150 22, 1200 11" fill="none" stroke="currentColor" stroke-width="2"/>
 </svg>
@@ -609,6 +652,7 @@ ${hasHearing ? `<section id="hearing">
     </div>
     ${(c.hearing.dispatches || []).length ? `<div class="dispatches">
       <h3>${esc(c.hearing.dispatchesHeading || "Dispatches from the doorstep")}</h3>
+      ${c.updates && c.updates.enabled ? `<p class="d-sub"><a href="#updates">Get these by email →</a></p>` : ""}
       ${c.hearing.dispatches.map((d, i) => { const id = dispatchId(d, c); return `<details class="dispatch"${i === 0 ? " open" : ""} id="${id}">
         <summary><span class="d-title">${inl(d.title)}</span><span class="d-date"><span class="d-num">No. ${esc(String(d.n || "").padStart(2, "0"))}</span> · ${esc(d.date)}</span>${d.summary ? `<span class="d-lede">${inl(d.summary)}</span>` : ""}</summary>
         <div class="prose dispatch-body">${blocks(d.body)}
@@ -869,6 +913,15 @@ const SCHEMA = [
     T("hero.thesis", "Big line", "textarea", { hint: "*Asterisks* colour a word orange." }),
     T("hero.lead", "Lead paragraph", "textarea"),
     T("hero.primaryButton", "Orange button"), T("hero.secondaryButton", "Outline button"),
+  ]},
+  { key: "updates", title: "Dispatch invitation and mailing list", fields: [
+    T("updates.enabled", "Show this band under the hero", "check"),
+    T("updates.eyebrow", "Small heading"), T("updates.heading", "Heading", "textarea"), T("updates.intro", "Intro", "textarea"),
+    T("updates.count", "How many recent dispatches to list", "text", { hint: "The newest dispatches appear automatically. Three reads well." }),
+    T("updates.allLabel", "Link to all dispatches"),
+    T("updates.signupHeading", "Signup heading"), T("updates.signupIntro", "Signup intro", "textarea"),
+    T("updates.button", "Signup button"),
+    T("updates.consent", "Consent line under the button", "textarea", { hint: "Canada's anti-spam law requires clear consent and a way to unsubscribe. Keep both in this line." }),
   ]},
   { key: "letter", title: "Letter to neighbours", fields: [
     T("letter.eyebrow", "Small heading"), T("letter.salutation", "Salutation"),
@@ -1285,6 +1338,24 @@ function wireSite() {
     history.replaceState(null, "", b.dataset.copy);
     setTimeout(() => { b.textContent = label; }, 2000);
   }));
+  const signup = document.getElementById("signup-form");
+  if (signup) signup.addEventListener("submit", async (e) => {
+    e.preventDefault(); const f = e.target;
+    if (f.website && f.website.value) return;
+    const note = f.querySelector("#signup-note"), email = f.email.value.trim(), name = f.name.value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { f.email.focus(); note.textContent = "Please enter a valid email address."; return; }
+    const mailto = () => { root.location.href = "mailto:" + state.site.email + "?subject=" + encodeURIComponent("Please add me to the dispatch list") + "&body=" + encodeURIComponent("Email: " + email + "\nName: " + (name || "(not given)")); };
+    if (!state.site.formKey || !root.fetch) return mailto();
+    const btn = f.querySelector("button[type=submit]"); btn.disabled = true; note.textContent = "Signing you up…";
+    try {
+      const r = await fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ access_key: state.site.formKey, subject: "Mailing list signup: " + email, from_name: "Tyler4Esquimalt website", email, name: name || "(not given)", consent: "Signed up on the website to receive campaign updates by email", date: new Date().toISOString().slice(0, 10), botcheck: "" }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.success) throw new Error("send failed");
+      f.innerHTML = '<div class="thanks">You\'re on the list.<small>Each dispatch will arrive by email as it goes up. Reply to any of them to unsubscribe.</small></div>';
+    } catch (err) { btn.disabled = false; note.textContent = "That didn\'t go through. Opening your email app instead…"; setTimeout(mailto, 800); }
+  });
+
   const donor = document.getElementById("donor-form");
   if (donor) donor.addEventListener("submit", async (e) => {
     e.preventDefault(); const f = e.target;
