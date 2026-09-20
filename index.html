@@ -182,7 +182,8 @@ a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3
 @media (max-width: 800px) { .hero-lead { grid-template-columns: 1fr; } }
 
 /* latest dispatches + mailing list, right under the hero */
-#updates { padding: 0 0 3.5rem; border-top: 0; }
+#dispatches { padding: 0 0 3.5rem; border-top: 0; }
+#dispatches, #updates { scroll-margin-top: 5.25rem; }
 .updates { background: var(--tint); border-radius: 8px; padding: clamp(1.5rem, 4vw, 2.75rem); display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 2rem 3.5rem; align-items: start; }
 @media (max-width: 800px) { .updates { grid-template-columns: 1fr; } }
 .updates h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 800; margin-top: .4rem; }
@@ -432,8 +433,9 @@ footer .auth { font-family: var(--display); font-size: .85rem; }
   </div>
 </header>
 
-<section id="updates">
+<section id="dispatches">
   <div class="wrap">
+    <a id="updates" aria-hidden="true"></a>
     <div class="updates">
       <div>
         <p class="eyebrow">Dispatches from the doorstep</p>
@@ -768,7 +770,7 @@ footer .auth { font-family: var(--display); font-size: .85rem; }
     </div>
     <div class="dispatches">
       <h3>Dispatches from the doorstep</h3>
-      <p class="d-sub"><a href="#updates">Get these by email →</a></p>
+      <p class="d-sub"><a href="#dispatches">Get these by email →</a></p>
       <details class="dispatch" open id="dispatch-06">
         <summary><span class="d-title">Sidewalks are where we all get along</span><span class="d-date"><span class="d-num">No. 06</span> · Saturday, September 19, 2026</span><span class="d-lede">Common ground between bike‑lane lovers and haters, why the Dayliner didn't work, a Viewfield station, who pays for infrastructure, housing the unhoused, and the beauty of roadside gardening.</span></summary>
         <div class="prose dispatch-body"><p>If I were to describe Esquimalt politics in terms of camps, you could basically say there are bike‑lane lovers and bike‑lane haters. On Saturday I think I found our community's most common common ground. I thought it would be traffic, but not quite: people who own cargo bikes and mostly bike rarely mention concerns with traffic, though people who bike some of the time, and love the lanes, definitely do. The real common ground between the lovers and the haters is sidewalks! In an area where new sidewalks went in, people at both ends of the Esquimalt political spectrum told me what a wonderful addition they have been. What they have done for child safety was gratefully noted by multiple parties.</p>
@@ -1359,7 +1361,8 @@ a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3
 @media (max-width: 800px) { .hero-lead { grid-template-columns: 1fr; } }
 
 /* latest dispatches + mailing list, right under the hero */
-#updates { padding: 0 0 3.5rem; border-top: 0; }
+#dispatches { padding: 0 0 3.5rem; border-top: 0; }
+#dispatches, #updates { scroll-margin-top: 5.25rem; }
 .updates { background: var(--tint); border-radius: 8px; padding: clamp(1.5rem, 4vw, 2.75rem); display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 2rem 3.5rem; align-items: start; }
 @media (max-width: 800px) { .updates { grid-template-columns: 1fr; } }
 .updates h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); font-weight: 800; margin-top: .4rem; }
@@ -1706,8 +1709,9 @@ function renderBody(c) {
   </div>
 </header>
 
-${c.updates && c.updates.enabled && c.hearing.dispatches.length ? `<section id="updates">
+${c.updates && c.updates.enabled && c.hearing.dispatches.length ? `<section id="dispatches">
   <div class="wrap">
+    <a id="updates" aria-hidden="true"></a>
     <div class="updates">
       <div>
         <p class="eyebrow">${esc(c.updates.eyebrow)}</p>
@@ -1832,7 +1836,7 @@ ${hasHearing ? `<section id="hearing">
     </div>
     ${(c.hearing.dispatches || []).length ? `<div class="dispatches">
       <h3>${esc(c.hearing.dispatchesHeading || "Dispatches from the doorstep")}</h3>
-      ${c.updates && c.updates.enabled ? `<p class="d-sub"><a href="#updates">Get these by email →</a></p>` : ""}
+      ${c.updates && c.updates.enabled ? `<p class="d-sub"><a href="#dispatches">Get these by email →</a></p>` : ""}
       ${c.hearing.dispatches.map((d, i) => { const id = dispatchId(d, c); return `<details class="dispatch"${i === 0 ? " open" : ""} id="${id}">
         <summary><span class="d-title">${inl(d.title)}</span><span class="d-date"><span class="d-num">No. ${esc(String(d.n || "").padStart(2, "0"))}</span> · ${esc(d.date)}</span>${d.summary ? `<span class="d-lede">${inl(d.summary)}</span>` : ""}</summary>
         <div class="prose dispatch-body">${blocks(d.body)}
