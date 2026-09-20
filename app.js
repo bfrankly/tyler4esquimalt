@@ -273,6 +273,7 @@ section + section { border-top: 1px solid var(--line); }
 .form .thanks small { display: block; font-weight: 500; color: var(--muted); margin-top: .35rem; }
 
 /* hearing board */
+.board-head { margin-top: 3rem; border-top: 1px solid var(--line); padding-bottom: 1.25rem; }
 .board { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
 @media (max-width: 900px) { .board { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 600px) { .board { grid-template-columns: 1fr; } }
@@ -306,8 +307,8 @@ section + section { border-top: 1px solid var(--line); }
 .platform .more { display: inline-block; margin-top: .5rem; font-family: var(--display); font-weight: 700; font-size: .92rem; }
 
 /* dispatches */
-.dispatches { margin-top: 3rem; border-top: 1px solid var(--line); }
-.dispatches > h3 { font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--arbutus); padding: 1.5rem 0 .5rem; }
+.dispatches { border-top: 1px solid var(--line); }
+.dispatches > h3, .board-head { font-size: .78rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--arbutus); padding: 1.5rem 0 .5rem; }
 .dispatch { border-bottom: 1px solid var(--line); }
 .dispatch > summary { cursor: pointer; list-style: none; padding: 1.25rem 0; display: grid; grid-template-columns: 1fr auto; gap: .35rem 2rem; align-items: baseline; }
 .dispatch > summary::-webkit-details-marker { display: none; }
@@ -640,6 +641,16 @@ ${hasHearing ? `<section id="hearing">
       </div>
       <p>${inl(c.hearing.intro)}</p>
     </div>
+    ${(c.hearing.dispatches || []).length ? `<div class="dispatches">
+      <h3>${esc(c.hearing.dispatchesHeading || "Dispatches from the doorstep")}</h3>
+      ${c.updates && c.updates.enabled ? `<p class="d-sub"><a href="#dispatches">Get these by email →</a></p>` : ""}
+      ${c.hearing.dispatches.map((d, i) => { const id = dispatchId(d, c); return `<details class="dispatch"${i === 0 ? " open" : ""} id="${id}">
+        <summary><span class="d-title">${inl(d.title)}</span><span class="d-date"><span class="d-num">No. ${esc(String(d.n || "").padStart(2, "0"))}</span> · ${esc(d.date)}</span>${d.summary ? `<span class="d-lede">${inl(d.summary)}</span>` : ""}</summary>
+        <div class="prose dispatch-body">${blocks(d.body)}
+        <p class="d-share"><button type="button" class="mini-link" data-copy="#${id}">Copy link to this dispatch</button> <span class="d-share-url">tyler4esquimalt.ca/#${id}</span></p></div>
+      </details>`; }).join("\n      ")}
+    </div>` : ""}
+    <h3 class="board-head">${esc(c.hearing.cardsHeading || "By theme")}</h3>
     <div class="board">
       ${c.hearing.cards.map(k => `<div class="card${k.placeholder ? " empty" : ""}">
         <h3>${inl(k.title)}</h3>
@@ -652,15 +663,6 @@ ${hasHearing ? `<section id="hearing">
       <span>${chip("advocate", c)}&nbsp; ${inl(c.hearing.tagAdvocateNote)}</span>
       <span>${chip("compiled", c)}&nbsp; ${inl(c.hearing.tagCompiledNote)}</span>
     </div>
-    ${(c.hearing.dispatches || []).length ? `<div class="dispatches">
-      <h3>${esc(c.hearing.dispatchesHeading || "Dispatches from the doorstep")}</h3>
-      ${c.updates && c.updates.enabled ? `<p class="d-sub"><a href="#dispatches">Get these by email →</a></p>` : ""}
-      ${c.hearing.dispatches.map((d, i) => { const id = dispatchId(d, c); return `<details class="dispatch"${i === 0 ? " open" : ""} id="${id}">
-        <summary><span class="d-title">${inl(d.title)}</span><span class="d-date"><span class="d-num">No. ${esc(String(d.n || "").padStart(2, "0"))}</span> · ${esc(d.date)}</span>${d.summary ? `<span class="d-lede">${inl(d.summary)}</span>` : ""}</summary>
-        <div class="prose dispatch-body">${blocks(d.body)}
-        <p class="d-share"><button type="button" class="mini-link" data-copy="#${id}">Copy link to this dispatch</button> <span class="d-share-url">tyler4esquimalt.ca/#${id}</span></p></div>
-      </details>`; }).join("\n      ")}
-    </div>` : ""}
   </div>
 </section>` : ""}
 
@@ -955,6 +957,7 @@ const SCHEMA = [
       T("placeholder", "Show as a dashed placeholder", "check"),
     ], hint: "Delete every card to hide the whole section." }),
     T("hearing.dispatchesHeading", "Dispatches heading"),
+    T("hearing.cardsHeading", "Heading above the theme tiles"),
     T("hearing.dispatches", "Dispatches (full write-ups)", "list", { itemLabel: (d) => ("No. " + String(d.n || "?").padStart(2, "0") + " · " + (d.title || "Untitled dispatch")), blank: () => ({ n: Math.max(0, ...state.hearing.dispatches.map(x => x.n || 0)) + 1, title: "", date: "", summary: "", body: "" }), fields: [
       T("n", "Number (permanent; it makes the shareable link, e.g. #dispatch-03)", "text"), T("title", "Title"), T("date", "Date line"), T("summary", "One-line lede", "textarea"),
       T("body", "Full text", "textarea", { tall: true, hint: "Blank line between paragraphs. Start a line with \"## \" for a subheading, \"- \" for a bullet, and write links as [label](https://...)." }),

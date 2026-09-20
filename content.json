@@ -141,7 +141,7 @@
   "hearing": {
     "eyebrow": "What I'm hearing",
     "heading": "At the door, so far",
-    "intro": "Updated as the door‑knocking goes. Concerns are grouped by theme and never attributed to a person by name. The theme cards are the running tally; the dispatches below them are the full write‑ups.",
+    "intro": "Updated as the door‑knocking goes. Concerns are grouped by theme and never attributed to a person by name. The dispatches are the full write‑ups; the theme cards below them are the running tally.",
     "cards": [
       {
         "title": "Child care",
@@ -324,6 +324,7 @@
     "tagCompiled": "Compiled for council",
     "tagCompiledNote": "included in the report",
     "dispatchesHeading": "Dispatches from the doorstep",
+    "cardsHeading": "By theme",
     "dispatches": [
       {
         "n": 6,
